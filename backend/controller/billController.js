@@ -62,3 +62,19 @@ export const createBill = async (req, res) => {
         });
     }
 };
+
+
+export const getallBill = async (req, res) => {
+    try {
+        const bill = await Bill.find();
+        res.status(200).json({
+            success: true,
+           bill
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+};

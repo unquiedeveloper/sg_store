@@ -119,6 +119,23 @@ export const getEmployee = async (req, res, next) => {
     });
 };
 
+
+export const getallEmployee = async (req, res) => {
+    try {
+        const employee = await Employee.find();
+        res.status(200).json({
+            success: true,
+           employee
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+};
+
+
 export const Logout = async (req, res, next) => {
     res.status(200).cookie("employeeToken", "", {
         httpOnly: true,

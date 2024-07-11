@@ -121,3 +121,19 @@ export const adminLogout = async (req, res, next) => {
         message: "Logged out!"
     });
 };
+
+
+export const getallAdmin = async (req, res) => {
+    try {
+        const admin = await Admin.find();
+        res.status(200).json({
+            success: true,
+           admin
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+};
