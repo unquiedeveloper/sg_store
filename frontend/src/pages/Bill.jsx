@@ -53,6 +53,32 @@ const Bill = () => {
     (currentPage - 1) * productsPerPage,
     currentPage * productsPerPage
   );
+  const deleteBill = async (id) => {
+    
+    try {
+      const res2 = await fetch(`http://localhost:4000/api/v1/bill/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          
+        }
+      });
+
+      const deletedata = await res2.json();
+      console.log(deletedata);
+
+      if (res2.status === 400 || !deletedata) {
+        console.log("Error");
+      } else {
+        console.log("bill deleted");
+        getBillData();
+        toast.success("bill deleted successfully");
+      }
+    } catch (error) {
+      console.error("Failed to delete bill", error);
+      toast.error("Failed to delete bill. Please try again.");
+    }
+  };
 
   return (
     <div className="w-full p-4 overflow-x-auto">
@@ -85,11 +111,16 @@ const Bill = () => {
                   >
                     View
                   </a>
-                  <a
-                    href="#"
-                    className="rounded bg-red-700 px-4 py-2 text-xs font-medium text-white hover:bg-red-600"
-                  >
-                    Delete
+                  <a>
+                    <button className="rounded bg-red-700 px-4 py-2 text-xs font-medium text-white hover:bg-red-600"  
+                    onClick={(e) => {
+                      e.preventDefault();
+                      deleteBill(bill._id);
+                    }}
+                    > 
+                     Delete
+                    </button>
+                  
                   </a>
                   <a
                     href="#"

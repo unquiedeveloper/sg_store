@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 function Employeeregister() {
+  const navigate = useNavigate();
   const [inpval, setINP] = useState({
     name: "",
     email: "",
@@ -54,8 +56,9 @@ function Employeeregister() {
         } else if (res.status === 409) {
             setError("Email is already registered");
             toast.error("Email is already registered");
-        } else if (res.status === 201) {
+        } else if (res.status === 200) {
             toast.success("Employee added successfully");
+            navigate("/")
             setError(""); // Clear any previous errors
         } else {
             setError("Unexpected error occurred");

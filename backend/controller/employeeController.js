@@ -106,7 +106,8 @@ export const login = async (req, res, next) => {
 };
 
 export const getEmployee = async (req, res, next) => {
-    const employee = await Employee.findById(req.employee._id);
+    const {id} = req.params
+    const employee = await Employee.findById(id);
     if (!employee) {
         return res.status(404).json({
             success: false,
@@ -149,9 +150,40 @@ export const Logout = async (req, res, next) => {
 export const deleteEmployee  = async(req,res,next)=>{
     const {id} = req.params;
     try {
-        await Product.findByIdAndDelete(id);
-        res.status(200).json({ success: true, message: 'Product deleted!' });
+        await Employee.findByIdAndDelete(id);
+        res.status(200).json({ success: true, message: 'Employee deleted!' });
       } catch (error) {
         res.status(500).json({ success: false, message: 'Internal server error' });
       }
 }
+
+
+export const updateEmployee = async (req, res, next) => {
+    const { id } = req.params;
+    const {name , email , phone , password , address } = req.body;
+
+    try {
+        const updatedEmployee = await Employee.findByIdAndUpdate(
+            id,
+            { name , email , phone , password , address },
+            { new: true }
+        );
+        res.status(200).json({
+            success: true,
+            message: 'Employee  updated!',
+            employee: updatedEmployee
+        });
+    } catch (error) {
+        if (error.code === 11000) {
+            // Duplicate key error
+            return res.status(400).json({
+                success: false,
+                message: "Unique ID already exists. Please provide a different Unique ID."
+            });
+        }
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+};

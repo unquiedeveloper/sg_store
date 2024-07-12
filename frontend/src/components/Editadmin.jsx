@@ -1,77 +1,95 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams ,  useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
-function Adminregister() {
+
+function Editadmin() {
   const navigate = useNavigate();
+  const { id } = useParams();
   const [inpval, setINP] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    password: '',
-    role: 'admin',
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    
+    role: "admin",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const setdata = (e) => {
     const { name, value } = e.target;
-    setINP((preval) => ({
-      ...preval,
+    setINP((prev) => ({
+      ...prev,
       [name]: value,
     }));
   };
 
-  const addinpdata = async (e) => {
-    e.preventDefault();
-
-    const { name, email, phone, password, role } = inpval;
-    const adminToken = localStorage.getItem('adminToken'); // Ensure this matches how the token is set on successful login
+  const getEmployeeData = async () => {
+    const token = localStorage.getItem('adminToken'); // Get the token for authentication
 
     try {
-      const res = await fetch('http://localhost:4000/api/v1/admin/register', {
-        method: 'POST',
+      const response = await fetch(`http://localhost:4000/api/v1/admin/me/${id}`, {
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${adminToken}`,
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`, // Add authorization header
         },
-        body: JSON.stringify({
-          name,
-          email,
-          phone,
-          password,
-          role,
-        }),
       });
 
-      const data = await res.json();
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
 
-      console.log('Response status:', res.status);
+      const data = await response.json();
       console.log('Response data:', data);
 
-      if (res.status === 400 || !data) {
-        setError(data.message || 'Provide full info');
-        toast.error(data.message || 'Provide full info');
-      } else if (res.status === 409) {
-        setError('Email is already registered');
-        toast.error('Email is already registered');
-      } else if (res.status === 200) {
-        toast.success('Admin added successfully');
-        navigate("/")
-        setError(''); // Clear any previous errors
+      if (data.admin) {
+        setINP(data.admin);
       } else {
-        setError('Unexpected error occurred');
-        toast.error('Unexpected error occurred');
+        toast.error("Invalid data received from server.");
       }
-    } catch (err) {
-      console.error(err);
-      setError('Something went wrong. Please try again.');
-      toast.error('Something went wrong. Please try again.');
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to fetch admin data. Please try again.");
+    }
+  };
+
+  useEffect(() => {
+    getEmployeeData();
+  }, []);
+
+  const addinpdata = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('adminToken');
+
+    try {
+      const response = await fetch(`http://localhost:4000/api/v1/admin/me/update/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(inpval),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Updated admin data:', data);
+
+      toast.success("Admin data updated successfully!");
+      navigate("/")
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update admin data. Please try again.");
     }
   };
 
   return (
     <div className="bg-white border-4 rounded-lg shadow relative m-10">
       <div className="flex items-start justify-between p-5 border-b rounded-t">
-        <h3 className="text-xl font-semibold">Add New Admin</h3>
+        <h3 className="text-xl font-semibold">Edit Admin</h3>
         <button
           type="button"
           className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
@@ -93,6 +111,11 @@ function Adminregister() {
       </div>
 
       <div className="p-6 space-y-6">
+        {error && (
+          <div className="text-red-500 text-sm mb-4">
+            {error}
+          </div>
+        )}
         <form onSubmit={addinpdata}>
           <div className="grid grid-cols-6 gap-6">
             <div className="col-span-6 sm:col-span-3">
@@ -104,9 +127,9 @@ function Adminregister() {
               </label>
               <input
                 type="text"
+                name="name"
                 onChange={setdata}
                 value={inpval.name}
-                name="name"
                 id="name"
                 className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5"
                 placeholder="Enter Name"
@@ -122,10 +145,10 @@ function Adminregister() {
               </label>
               <input
                 type="text"
-                onChange={setdata}
-                value={inpval.email}
                 name="email"
                 id="email"
+                onChange={setdata}
+                value={inpval.email}
                 className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5"
                 placeholder="Enter Email"
                 required
@@ -140,10 +163,10 @@ function Adminregister() {
               </label>
               <input
                 type="text"
-                onChange={setdata}
-                value={inpval.phone}
                 name="phone"
                 id="phone"
+                onChange={setdata}
+                value={inpval.phone}
                 className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5"
                 placeholder="Enter Phone Number"
                 required
@@ -158,23 +181,23 @@ function Adminregister() {
               </label>
               <input
                 type="password"
-                onChange={setdata}
-                value={inpval.password}
                 name="password"
                 id="password"
+                onChange={setdata}
+                value={inpval.password}
                 className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-cyan-600 focus:border-cyan-600 block w-full p-2.5"
                 placeholder="Enter Password"
                 required
               />
             </div>
-          </div>
 
+          </div>
           <div className="p-6 border-t border-gray-200 rounded-b">
             <button
               className="text-white bg-red-700 hover:bg-red-600 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
               type="submit"
             >
-              Save all
+              Update Admin
             </button>
           </div>
         </form>
@@ -183,4 +206,4 @@ function Adminregister() {
   );
 }
 
-export default Adminregister;
+export default Editadmin;

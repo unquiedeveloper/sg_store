@@ -59,6 +59,33 @@ const Services = () => {
     currentPage * productsPerPage
   );
 
+  const deleteEmployee = async (id) => {
+    const token = localStorage.getItem('adminToken');
+    try {
+      const res2 = await fetch(`http://localhost:4000/api/v1/employee/me/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        }
+      });
+
+      const deletedata = await res2.json();
+      console.log(deletedata);
+
+      if (res2.status === 400 || !deletedata) {
+        console.log("Error");
+      } else {
+        console.log("Employee deleted");
+        getEmployeeData();
+        toast.success("Employee deleted successfully");
+      }
+    } catch (error) {
+      console.error("Failed to delete employee", error);
+      toast.error("Failed to delete employee. Please try again.");
+    }
+  };
+
   return (
     <div className="w-full p-4 overflow-x-auto">
       <div className="overflow-x-auto w-full max-w-screen">
@@ -90,19 +117,22 @@ const Services = () => {
                 <td className="whitespace-nowrap px-4 py-2 text-gray-700">{element.address}</td>
                 <td className="whitespace-nowrap px-4 py-2 flex space-x-2">
                   <a
-                    href="#"
+                    href={`/employeeview/${element._id}`}
                     className="rounded bg-red-700 px-4 py-2 text-xs font-medium text-white hover:bg-red-600"
                   >
                     View
                   </a>
-                  <a
-                    href="#"
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      deleteEmployee(element._id);
+                    }}
                     className="rounded bg-red-700 px-4 py-2 text-xs font-medium text-white hover:bg-red-600"
                   >
                     Delete
-                  </a>
+                  </button>
                   <a
-                    href="#"
+                    href={`/employeeedit/${element._id}`}
                     className="rounded bg-red-700 px-4 py-2 text-xs font-medium text-white hover:bg-red-600"
                   >
                     Update

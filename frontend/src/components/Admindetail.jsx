@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from "react-router-dom"
-import toast from 'react-hot-toast';// Make sure you have react-toastify installed
-
-function Employeedetail() {
-
+import toast from 'react-hot-toast';
+function Admindetail() {
   const { id } = useParams();
   console.log(id);
 
@@ -12,7 +10,7 @@ function Employeedetail() {
 
   const getEmployeeData = async () => {
     try {
-      const response = await fetch(`http://localhost:4000/api/v1/employee/me/${id}`, {
+      const response = await fetch(`http://localhost:4000/api/v1/admin/me/${id}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -27,8 +25,8 @@ function Employeedetail() {
       console.log('Response data:', data);
 
       // Ensure 'employee' key exists and contains the correct data
-      if (data.employee) {
-        setUserdata(data.employee);
+      if (data.admin) {
+        setUserdata(data.admin);
       } else {
         toast.error("Invalid data received from server.");
       }
@@ -41,7 +39,6 @@ function Employeedetail() {
   useEffect(() => {
     getEmployeeData();
   }, []);
-
   return (
     <div className='m-5'>
       <h1 className='font-bold text-3xl'>WELCOME {getuserdata.name ? getuserdata.name.toUpperCase() : "Employee"} </h1>
@@ -59,7 +56,7 @@ function Employeedetail() {
               <h1 className='font-bold mb-2'>Name: <span className='font-light'>{getuserdata.name}</span></h1>
               <h1 className='font-bold mb-2'>Email: <span className='font-light'>{getuserdata.email}</span></h1>
               <h1 className='font-bold mb-2'>Phone: <span className='font-light'>{getuserdata.phone}</span></h1>
-              <h1 className='font-bold mb-2'>Address: <span className='font-light'>{getuserdata.address}</span></h1>
+              {/* <h1 className='font-bold mb-2'>Address: <span className='font-light'>{getuserdata.address}</span></h1> */}
             </div>
 
             <div className="hidden sm:block sm:shrink-0 flex-col items-center justify-center">
@@ -114,7 +111,7 @@ function Employeedetail() {
         </a>
       </div>
     </div>
-  );
+  )
 }
 
-export default Employeedetail;
+export default Admindetail

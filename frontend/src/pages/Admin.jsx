@@ -58,6 +58,32 @@ const Admin = () => {
     (currentPage - 1) * productsPerPage,
     currentPage * productsPerPage
   );
+  const deleteAdmin = async (id) => {
+    const token = localStorage.getItem('adminToken');
+    try {
+      const res2 = await fetch(`http://localhost:4000/api/v1/admin/delete/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        }
+      });
+
+      const deletedata = await res2.json();
+      console.log(deletedata);
+
+      if (res2.status === 400 || !deletedata) {
+        console.log("Error");
+      } else {
+        console.log("admin deleted");
+        getAdminData();
+        toast.success("Admin deleted successfully");
+      }
+    } catch (error) {
+      console.error("Failed to delete admin", error);
+      toast.error("Failed to delete admin. Please try again.");
+    }
+  };
 
   return (
     <div className="w-full p-4 overflow-x-auto">
@@ -88,19 +114,25 @@ const Admin = () => {
                 <td className="whitespace-nowrap px-4 py-2 text-gray-700">{element.phone}</td>
                 <td className="whitespace-nowrap px-4 py-2 flex space-x-2">
                   <a
-                    href="#"
+                    href={`/adminview/${element._id}`}
                     className="rounded bg-red-700 px-4 py-2 text-xs font-medium text-white hover:bg-red-600"
                   >
                     View
                   </a>
                   <a
-                    href="#"
-                    className="rounded bg-red-700 px-4 py-2 text-xs font-medium text-white hover:bg-red-600"
+
                   >
-                    Delete
+                    <button className="rounded bg-red-700 px-4 py-2 text-xs font-medium text-white hover:bg-red-600" onClick={(e) => {
+                      e.preventDefault();
+                      deleteAdmin(element._id);
+                    }} > Delete
+
+
+                    </button>
+                   
                   </a>
                   <a
-                    href="#"
+                    href={`/editadmin/${element._id}`}
                     className="rounded bg-red-700 px-4 py-2 text-xs font-medium text-white hover:bg-red-600"
                   >
                     Update

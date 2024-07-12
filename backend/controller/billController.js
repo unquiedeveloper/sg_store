@@ -78,3 +78,13 @@ export const getallBill = async (req, res) => {
         });
     }
 };
+
+export const deleteBill  = async(req,res,next)=>{
+    const {id} = req.params;
+    try {
+        await Bill.findByIdAndDelete(id);
+        res.status(200).json({ success: true, message: 'Bill deleted!' });
+      } catch (error) {
+        res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+}

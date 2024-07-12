@@ -2,7 +2,7 @@ import { Admin } from "../models/adminSchema.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-export const adminRegsiter = async (req, res, next) => {
+export const adminRegister = async (req, res, next) => {
     const { name, email, phone, password, role } = req.body;
     if (!name || !email || !password || !phone || !role) {
         return res.status(400).json({
@@ -19,7 +19,6 @@ export const adminRegsiter = async (req, res, next) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const admin = await Admin.create({ name, email, password: hashedPassword, phone, role });
 
     const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET2, {
@@ -30,11 +29,7 @@ export const adminRegsiter = async (req, res, next) => {
         success: true,
         message: "Admin registered successfully!",
         admin
-        
-
-    })
-
-   
+    });
 };
 
 export const adminLogin = async (req, res, next) => {
@@ -81,35 +76,6 @@ export const adminLogin = async (req, res, next) => {
         admin,
         token
     });
-
-    // const token = req.cookies.adminToken;
-    // if (!token) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: "No token found. Please register first."
-    //     });
-    // }
-
-    // try {
-    //     const decoded = jwt.verify(token, process.env.JWT_SECRET2);
-    //     if (decoded.id !== admin._id.toString()) {
-    //         return res.status(400).json({
-    //             success: false,
-    //             message: "Invalid token for this role"
-    //         });
-    //     }
-    // } catch (error) {
-    //     return res.status(400).json({
-    //         success: false,
-    //         message: "Invalid token"
-    //     });
-    // }
-
-    // res.status(200).json({
-    //     success: true,
-    //     message: "Logged in!",
-    //     admin
-    // });
 };
 
 export const adminLogout = async (req, res, next) => {
@@ -122,13 +88,12 @@ export const adminLogout = async (req, res, next) => {
     });
 };
 
-
 export const getallAdmin = async (req, res) => {
     try {
         const admin = await Admin.find();
         res.status(200).json({
             success: true,
-           admin
+            admin
         });
     } catch (error) {
         res.status(500).json({
@@ -137,3 +102,59 @@ export const getallAdmin = async (req, res) => {
         });
     }
 };
+
+export const getAdmin = async (req, res, next) => {
+    const { id } = req.params;
+    const admin = await Admin.findById(id);
+    if (!admin) {
+        return res.status(404).json({
+            success: false,
+            message: "Admin not found"
+        });
+    }
+    res.status(200).json({
+        success: true,
+        admin
+    });
+};
+
+
+export const updateAdmin = async (req, res, next) => {
+    const { id } = req.params;
+    const {name , email , phone , password  } = req.body;
+
+    try {
+        const updatedAdmin = await Admin.findByIdAndUpdate(
+            id,
+            { name , email , phone , password  },
+            { new: true }
+        );
+        res.status(200).json({
+            success: true,
+            message: 'Admin  updated!',
+            admin: updatedAdmin
+        });
+    } catch (error) {
+        if (error.code === 11000) {
+            // Duplicate key error
+            return res.status(400).json({
+                success: false,
+                message: "Unique ID already exists. Please provide a different Unique ID."
+            });
+        }
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+};
+
+export const deleteAdmin  = async(req,res,next)=>{
+    const {id} = req.params;
+    try {
+        await Admin.findByIdAndDelete(id);
+        res.status(200).json({ success: true, message: 'Admin deleted!' });
+      } catch (error) {
+        res.status(500).json({ success: false, message: 'Internal server error' });
+      }
+}

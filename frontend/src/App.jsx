@@ -8,12 +8,16 @@ import Admin from './pages/Admin';
 import Bill from './pages/Bill';
 import Login from './pages/Login';
 import CustomerHome from './pages/CustomerHome';
-
+import Editadmin from './components/Editadmin';
 import Employeeregister from './components/Employeeregister';
 import Adminregister from './components/Adminregister';
 import Addproduct from './components/Addproduct';
 import Employeedetail from './components/Employeedetail';
 import Editemployee from './components/Editemployee';
+import Admindetail from "./components/Admindetail"
+import Productdetail from "./components/Productdetail"
+
+import Editproduct from './components/Editproduct';
 function App() {
   const token = localStorage.getItem('token');
 
@@ -38,6 +42,12 @@ function App() {
         <Route path='/addproducts' element={<Addproduct/>} />
         <Route path="/employeeview/:id" element={<Employeedetail/>} />
         <Route path='/employeeedit/:id' element={<Editemployee/>} />
+        <Route path='/adminview/:id' element={<Admindetail/>} />
+        <Route path='/productview/:id' element={<Productdetail/>} />
+        <Route path='/editadmin/:id' element={<Editadmin/>} />
+    
+        <Route path='/editproduct/:id'  element={<Editproduct/>}/>
+       
       
        
       
